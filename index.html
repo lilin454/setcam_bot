@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Set 遊戲助理</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>AI Set 遊戲助理</h1>
+            <p class="text-secondary">使用攝像頭即時分析 Set 卡牌組合</p>
+        </header>
+        
+        <!-- 攝像頭控制區 -->
+        <div class="camera-controls">
+            <button id="start-camera" class="btn btn--primary">
+                <span class="btn-icon">📹</span>
+                啟動攝像頭
+            </button>
+            <button id="stop-camera" class="btn btn--secondary" disabled>
+                <span class="btn-icon">⏹️</span>
+                停止攝像頭
+            </button>
+            <button id="switch-camera" class="btn btn--outline" disabled>
+                <span class="btn-icon">🔄</span>
+                切換鏡頭
+            </button>
+            <button id="analyze-frame" class="btn btn--outline" disabled>
+                <span class="btn-icon">🔍</span>
+                分析畫面
+            </button>
+        </div>
+        
+        <!-- 視訊顯示區 -->
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video id="camera-video" autoplay playsinline muted></video>
+                <canvas id="analysis-canvas"></canvas>
+                <div id="detection-overlay"></div>
+            </div>
+            <div class="video-placeholder" id="video-placeholder">
+                <div class="placeholder-content">
+                    <span class="placeholder-icon">📷</span>
+                    <p>點擊「啟動攝像頭」開始使用</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 狀態顯示區 -->
+        <div class="status-panel">
+            <div class="card">
+                <div class="card__body">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">攝像頭狀態</div>
+                            <div class="status-value">
+                                <span class="status status--info" id="camera-status">未啟動</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">檢測到卡片</div>
+                            <div class="status-value">
+                                <span class="status-number" id="card-count">0</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">找到 Set 組合</div>
+                            <div class="status-value">
+                                <span class="status-number" id="set-count">0</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">處理時間</div>
+                            <div class="status-value">
+                                <span class="status-time" id="process-time">0ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分析設置區 -->
+        <div class="settings-panel">
+            <div class="card">
+                <div class="card__body">
+                    <h3>分析設置</h3>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="analysis-interval">自動分析間隔（秒）</label>
+                            <select class="form-control" id="analysis-interval">
+                                <option value="0">關閉自動分析</option>
+                                <option value="1000" selected>1 秒</option>
+                                <option value="2000">2 秒</option>
+                                <option value="3000">3 秒</option>
+                                <option value="5000">5 秒</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="detection-sensitivity">檢測敏感度</label>
+                            <select class="form-control" id="detection-sensitivity">
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 結果顯示區 -->
+        <div class="results-panel">
+            <div class="card">
+                <div class="card__body">
+                    <h3>檢測結果</h3>
+                    
+                    <div class="results-section">
+                        <h4>檢測到的卡片</h4>
+                        <div id="detected-cards" class="cards-list">
+                            <div class="no-results">尚未檢測到任何卡片</div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-section">
+                        <h4>找到的 Set 組合</h4>
+                        <div id="found-sets" class="sets-list">
+                            <div class="no-results">尚未找到任何 Set 組合</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 說明區 -->
+        <div class="help-panel">
+            <div class="card">
+                <div class="card__body">
+                    <h3>使用說明</h3>
+                    <div class="help-content">
+                        <div class="help-item">
+                            <strong>1. 啟動攝像頭：</strong>點擊「啟動攝像頭」按鈕並授予權限
+                        </div>
+                        <div class="help-item">
+                            <strong>2. 放置卡片：</strong>將 Set 卡片放在攝像頭前，確保光線充足
+                        </div>
+                        <div class="help-item">
+                            <strong>3. 自動分析：</strong>系統會自動分析畫面，或手動點擊「分析畫面」
+                        </div>
+                        <div class="help-item">
+                            <strong>4. 查看結果：</strong>檢測結果會顯示在下方面板中
+                        </div>
+                    </div>
+                    
+                    <div class="set-rules">
+                        <h4>Set 遊戲規則</h4>
+                        <p>有效的 Set 組合必須滿足：每個特徵（數量、形狀、顏色、填充）在三張卡片上必須<strong>全部相同</strong>或<strong>全部不同</strong></p>
+                        <div class="feature-list">
+                            <div class="feature-item">數量：1、2、3</div>
+                            <div class="feature-item">形狀：橢圓、菱形、波浪</div>
+                            <div class="feature-item">顏色：紅色、綠色、紫色</div>
+                            <div class="feature-item">填充：實心、條紋、空心</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
