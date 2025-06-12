@@ -1,1 +1,0 @@
-"# setcam_bot" 
